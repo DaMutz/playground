@@ -48,7 +48,7 @@ aria_north = {
     '6'  : 100,
     '7'  : 101,
     '8'  : 102,
-    '9' :  103,
+    '9'  : 103,
     '10' : 104,
     '11' : 105,
     '12' : 106,
@@ -73,7 +73,7 @@ aria_east = {
     '6'  : 122,
     '7'  : 123,
     '8'  : 124,
-    '9' :  125,
+    '9'  : 125,
     '10' : 126,
     '11' : 127,
 }
@@ -86,7 +86,7 @@ aria_south = {
     '6'  :  49,
     '7'  :  48,
     '8'  :  47,
-    '9' :   46,
+    '9'  :  46,
     '10' :  45,
     '11' :  44,
     '12' :  43,
@@ -413,61 +413,64 @@ connectors = {
     'D16' :  D16_kernel_ids,
 }
 
-def get_kernel_id(connector_name,pin_number):
+GPIO_PATH = os.path.join('/sys', 'class', 'gpio')
+
+def get_kernel_id(connector_name, pin_number):
     return connectors[connector_name][pin_number]
 
 def export(kernel_id):
-    iopath='/sys/class/gpio/gpio' + str(kernel_id)
+    iopath = os.path.join(GPIO_PATH, 'gpio' + str(kernel_id))
     if not os.path.exists(iopath):
         with open('/sys/class/gpio/export', 'w') as f:
             f.write(str(kernel_id))
 
 def unexport(kernel_id):
-    iopath='/sys/class/gpio/gpio' + str(kernel_id)
+    iopath = os.path.join(GPIO_PATH, 'gpio' + str(kernel_id))
     if os.path.exists(iopath):
         with open('/sys/class/gpio/unexport', 'w') as f:
             f.write(str(kernel_id))
 
-def direction(kernel_id,direct):
-    iopath='/sys/class/gpio/gpio' + str(kernel_id)
+def direction(kernel_id, direct):
+    iopath = os.path.join(GPIO_PATH, 'gpio' + str(kernel_id))
     if os.path.exists(iopath):
         with open(iopath + '/direction', 'w') as f:
             f.write(direct)
 
-def set_value(kernel_id,value):
-    iopath='/sys/class/gpio/gpio' + str(kernel_id)
+def set_value(kernel_id, value):
+    iopath = os.path.join(GPIO_PATH, 'gpio' + str(kernel_id))
     if os.path.exists(iopath):
         with open(iopath + '/value', 'w') as f:
             f.write(str(value))
 
 def get_value(kernel_id):
     if kernel_id<>-1:
-        iopath='/sys/class/gpio/gpio' + str(kernel_id)
+        iopath = os.path.join(GPIO_PATH, 'gpio' + str(kernel_id))
         if os.path.exists(iopath):
             with open(iopath + '/value', 'r') as f:
                 a = f.read()
             return int(a)
+    return;
 
 def soft_pwm_export(kernel_id):
-    iopath='/sys/class/soft_pwm/pwm' + str(kernel_id)
+    iopath = '/sys/class/soft_pwm/pwm' + str(kernel_id)
     if not os.path.exists(iopath):
         with open('/sys/class/soft_pwm/export', 'w') as f:
             f.write(str(kernel_id))
 
-def soft_pwm_period(kernel_id,value):
-    iopath='/sys/class/soft_pwm/pwm' + str(kernel_id)
+def soft_pwm_period(kernel_id, value):
+    iopath = '/sys/class/soft_pwm/pwm' + str(kernel_id)
     if os.path.exists(iopath):
         with open(iopath + '/period', 'w') as f:
             f.write(str(value))
 
-def soft_pwm_pulse(kernel_id,value):
-    iopath='/sys/class/soft_pwm/pwm' + str(kernel_id)
+def soft_pwm_pulse(kernel_id, value):
+    iopath = '/sys/class/soft_pwm/pwm' + str(kernel_id)
     if os.path.exists(iopath):
         with open(iopath + '/pulse', 'w') as f:
             f.write(str(value))
 
-def soft_pwm_steps(kernel_id,value):
-    iopath='/sys/class/soft_pwm/pwm' + str(kernel_id)
+def soft_pwm_steps(kernel_id, value):
+    iopath = '/sys/class/soft_pwm/pwm' + str(kernel_id)
     if os.path.exists(iopath):
         with open(iopath + '/pulses', 'w') as f:
             f.write(str(value))
@@ -476,21 +479,21 @@ class Pin():
     """
     FOX pins related class
     """
-    kernel_id=-1
+    kernel_id = -1
 
-    def __init__(self,connector_id,pin_name,direct):
-        self.kernel_id=get_kernel_id(connector_id,pin_name)
+    def __init__(self, connector_id, pin_name, direct):
+        self.kernel_id = get_kernel_id(connector_id, pin_name)
         export(self.kernel_id)
-        direction(self.kernel_id,direct)
+        direction(self.kernel_id, direct)
 
     def on(self):
-        set_value(self.kernel_id,1)
+        set_value(self.kernel_id, 1)
 
     def off(self):
-        set_value(self.kernel_id,0)
+        set_value(self.kernel_id, 0)
 
-    def set_value(self,value):
-        return set_value(self.kernel_id,value)
+    def set_value(self, value):
+        return set_value(self.kernel_id, value)
 
     def get_value(self):
         return get_value(self.kernel_id)
@@ -502,10 +505,10 @@ class Daisy2():
     http://www.acmesystems.it/DAISY-2
     """
 
-    ENABLE_kernel_id=-1
-    DIR_kernel_id=-1
-    STEP_kernel_id=-1
-    LOWPOWER_kernel_id=-1
+    ENABLE_kernel_id = -1
+    DIR_kernel_id = -1
+    STEP_kernel_id = -1
+    LOWPOWER_kernel_id = -1
 
     control_line_A = {
         'ENABLE'   :  '2',
@@ -521,18 +524,18 @@ class Daisy2():
         'LOWPOWER' :  '9',
     }
 
-    def __init__(self,connector_id,S1="A",period=1400,pulse=700):
-        if (S1=="A"):
-            self.ENABLE_kernel_id = get_kernel_id(connector_id,self.control_line_A["ENABLE"])
-            self.DIR_kernel_id = get_kernel_id(connector_id,self.control_line_A["DIR"])
-            self.STEP_kernel_id = get_kernel_id(connector_id,self.control_line_A["STEP"])
-            self.LOWPOWER_kernel_id = get_kernel_id(connector_id,self.control_line_A["LOWPOWER"])
+    def __init__(self, connector_id, S1="A", period=1400, pulse=700):
+        if (S1 == "A"):
+            self.ENABLE_kernel_id = get_kernel_id(connector_id, self.control_line_A["ENABLE"])
+            self.DIR_kernel_id = get_kernel_id(connector_id, self.control_line_A["DIR"])
+            self.STEP_kernel_id = get_kernel_id(connector_id, self.control_line_A["STEP"])
+            self.LOWPOWER_kernel_id = get_kernel_id(connector_id, self.control_line_A["LOWPOWER"])
 
-        if (S1=="B"):
-            self.ENABLE_kernel_id = get_kernel_id(connector_id,self.control_line_B["ENABLE"])
-            self.DIR_kernel_id = get_kernel_id(connector_id,self.control_line_B["DIR"])
-            self.STEP_kernel_id = get_kernel_id(connector_id,self.control_line_B["STEP"])
-            self.LOWPOWER_kernel_id = get_kernel_id(connector_id,self.control_line_B["LOWPOWER"])
+        if (S1 == "B"):
+            self.ENABLE_kernel_id = get_kernel_id(connector_id, self.control_line_B["ENABLE"])
+            self.DIR_kernel_id = get_kernel_id(connector_id, self.control_line_B["DIR"])
+            self.STEP_kernel_id = get_kernel_id(connector_id, self.control_line_B["STEP"])
+            self.LOWPOWER_kernel_id = get_kernel_id(connector_id, self.control_line_B["LOWPOWER"])
 
         export(self.ENABLE_kernel_id)
         export(self.DIR_kernel_id)
@@ -540,42 +543,43 @@ class Daisy2():
         soft_pwm_export(self.STEP_kernel_id)
         export(self.LOWPOWER_kernel_id)
 
-        direction(self.ENABLE_kernel_id,'high')
-        direction(self.DIR_kernel_id,'low')
-        direction(self.LOWPOWER_kernel_id,'low')
+        direction(self.ENABLE_kernel_id, 'high')
+        direction(self.DIR_kernel_id, 'low')
+        direction(self.LOWPOWER_kernel_id, 'low')
 
         self.steps(0)
         self.period(period)
         self.pulse(pulse)
 
-    def direction(self,value):
-        set_value(self.DIR_kernel_id,value)
+    def direction(self, value):
+        set_value(self.DIR_kernel_id, value)
 
     def enable(self):
-        set_value(self.ENABLE_kernel_id,0)
+        set_value(self.ENABLE_kernel_id, 0)
 
     def disable(self):
-        set_value(self.ENABLE_kernel_id,1)
+        set_value(self.ENABLE_kernel_id, 1)
 
     def lowpower(self):
         time.sleep(0.1)
-        set_value(self.LOWPOWER_kernel_id,1)
+        set_value(self.LOWPOWER_kernel_id, 1)
 
     def hipower(self):
-        set_value(self.LOWPOWER_kernel_id,0)
+        set_value(self.LOWPOWER_kernel_id, 0)
         time.sleep(0.1)
 
-    def period(self,value):
-        soft_pwm_period(self.STEP_kernel_id,value)
+    def period(self, value):
+        soft_pwm_period(self.STEP_kernel_id, value)
 
-    def pulse(self,value):
-        soft_pwm_pulse(self.STEP_kernel_id,value)
+    def pulse(self, value):
+        soft_pwm_pulse(self.STEP_kernel_id, value)
 
-    def steps(self,value):
-        soft_pwm_steps(self.STEP_kernel_id,value)
+    def steps(self, value):
+        soft_pwm_steps(self.STEP_kernel_id, value)
 
     def stop(self):
-        soft_pwm_steps(self.STEP_kernel_id,0)
+        soft_pwm_steps(self.STEP_kernel_id, 0)
+
 
 class Daisy4():
 
@@ -583,7 +587,7 @@ class Daisy4():
     DAISY-4 (Relay module) related class
     http://www.acmesystems.it/DAISY-4
     """
-    kernel_id=-1
+    kernel_id = -1
 
     dips = {
         'DIP1' :  '2',
@@ -596,24 +600,23 @@ class Daisy4():
         'DIP8' :  '9',
     }
 
-    def __init__(self,connector_id,dip_id):
+    def __init__(self, connector_id, dip_id):
         pin=self.dips[dip_id]
-        self.kernel_id = get_kernel_id(connector_id,pin)
+        self.kernel_id = get_kernel_id(connector_id, pin)
 
-        if (self.kernel_id!=0):
+        if self.kernel_id != 0:
             export(self.kernel_id)
-            direction(self.kernel_id,'low')
+            direction(self.kernel_id, 'low')
 
     def on(self):
-        if (self.kernel_id!=0):
-            set_value(self.kernel_id,1)
+        if self.kernel_id != 0:
+            set_value(self.kernel_id, 1)
         else:
             pass
 
-
     def off(self):
-        if (self.kernel_id!=0):
-            set_value(self.kernel_id,0)
+        if self.kernel_id != 0:
+            set_value(self.kernel_id, 0)
         else:
             pass
 
@@ -637,33 +640,33 @@ class Daisy5():
         'P8' :  '9',
     }
 
-    def __init__(self,connector_id,button_id):
-        pin=self.buttons[button_id]
-        self.kernel_id = get_kernel_id(connector_id,pin)
+    def __init__(self, connector_id, button_id):
+        pin = self.buttons[button_id]
+        self.kernel_id = get_kernel_id(connector_id, pin)
 
-        if (self.kernel_id!=0):
+        if self.kernel_id != 0:
             export(self.kernel_id)
-            direction(self.kernel_id,'in')
+            direction(self.kernel_id, 'in')
 
     def pressed(self):
-        if self.kernel_id<>-1:
-            iopath='/sys/class/gpio/gpio' + str(self.kernel_id)
+        if self.kernel_id <> -1:
+            iopath = '/sys/class/gpio/gpio' + str(self.kernel_id)
             if os.path.exists(iopath):
                 with open(iopath + '/value', 'r') as f:
                     a = f.read()
 
-                if int(a)==0:
+                if int(a) == 0:
                     return False
                 else:
                     return True
         return False
 
     def on(self):
-        if self.handler_on!=0:
+        if self.handler_on != 0:
             self.handler_on()
 
     def off(self):
-        if self.handler_off!=0:
+        if self.handler_off != 0:
             self.handler_off()
 
 class Daisy8():
@@ -672,7 +675,7 @@ class Daisy8():
     DAISY-8 (2 Relay - 2 input module) related class
     http://www.acmesystems.it/DAISY-8
     """
-    kernel_id=-1
+    kernel_id = -1
 
     line_first = {
         'RL0' :  '2',
@@ -688,31 +691,31 @@ class Daisy8():
         'IN1' :  '9',
     }
 
-    def __init__(self,connector_id,position,id):
-        if (position=="first"):
+    def __init__(self, connector_id, position, id):
+        if position == "first":
             pin=self.line_first[id]
         else:
             pin=self.line_second[id]
 
-        self.kernel_id = get_kernel_id(connector_id,pin)
+        self.kernel_id = get_kernel_id(connector_id, pin)
 
-        if (self.kernel_id!=0 and id[0:2]=="RL"):
+        if (self.kernel_id != 0 and id[0:2] == "RL"):
             export(self.kernel_id)
-            direction(self.kernel_id,'low')
+            direction(self.kernel_id, 'low')
 
-        if (self.kernel_id!=0 and id[0:2]=="IN"):
+        if (self.kernel_id != 0 and id[0:2] == "IN"):
             export(self.kernel_id)
-            direction(self.kernel_id,'in')
+            direction(self.kernel_id, 'in')
 
     def on(self):
-        if (self.kernel_id!=0):
-            set_value(self.kernel_id,1)
+        if (self.kernel_id != 0):
+            set_value(self.kernel_id, 1)
         else:
             pass
 
     def off(self):
-        if (self.kernel_id!=0):
-            set_value(self.kernel_id,0)
+        if (self.kernel_id != 0):
+            set_value(self.kernel_id, 0)
         else:
             pass
 
@@ -738,18 +741,19 @@ class Daisy10(Serial):
         Serial.__init__(self, *args, **kwargs)
         self.buf = ''
 
-    def mode(self,mode):
-        if mode=="RS485":
+    def mode(self, mode):
+        if mode == "RS485":
             #Read these doc to understand this part
             #http://lxr.free-electrons.com/source/Documentation/serial/serial-rs485.txt
             #http://docs.python.org/2/library/struct.html
-            fd=self.fileno()
+            fd = self.fileno()
             serial_rs485 = struct.pack('hhhhhhhh', 1, 0, 0, 0, 0, 0, 0, 0)
-            fcntl.ioctl(fd,0x542F,serial_rs485)
-        if mode=="RS422":
-            fd=self.fileno()
+            fcntl.ioctl(fd, 0x542F, serial_rs485)
+        elif mode == "RS422":
+            fd = self.fileno()
             serial_rs485 = struct.pack('hhhhhhhh', 0, 0, 0, 0, 0, 0, 0, 0)
-            fcntl.ioctl(fd,0x542F,serial_rs485)
+            fcntl.ioctl(fd, 0x542F, serial_rs485)
+
 
 class Daisy11():
 
@@ -758,7 +762,7 @@ class Daisy11():
     http://www.acmesystems.it/DAISY-11
     """
 
-    kernel_id=-1
+    kernel_id = -1
 
     leds = {
         'L1' :  '2',
@@ -771,25 +775,23 @@ class Daisy11():
         'L8' :  '9',
     }
 
-    def __init__(self,connector_id,led_id):
-        pin=self.leds[led_id]
-        self.kernel_id = get_kernel_id(connector_id,pin)
+    def __init__(self, connector_id, led_id):
+        pin = self.leds[led_id]
+        self.kernel_id = get_kernel_id(connector_id, pin)
 
-        if (self.kernel_id!=0):
+        if self.kernel_id != 0:
             export(self.kernel_id)
-            direction(self.kernel_id,'low')
-
+            direction(self.kernel_id, 'low')
 
     def on(self):
-        if (self.kernel_id!=0):
-            set_value(self.kernel_id,1)
+        if self.kernel_id != 0:
+            set_value(self.kernel_id, 1)
         else:
             pass
 
-
     def off(self):
-        if (self.kernel_id!=0):
-            set_value(self.kernel_id,0)
+        if self.kernel_id != 0:
+            set_value(self.kernel_id, 0)
         else:
             pass
 
@@ -807,17 +809,17 @@ class Daisy14():
     http://www.acmesystems.it/DAISY-14
     """
 
-    i2c_bus=-1
+    i2c_bus = -1
     i2c_address = -1
     backled = -1
     rs = -1
     e = -1
 
-    def __init__(self,bus_id=0,i2c_address=0x20):
+    def __init__(self, bus_id=0, i2c_address=0x20):
         self.i2c_address = i2c_address
         self.i2c_bus = smbus.SMBus(bus_id)
-        self.rs=Daisy22(bus_id,i2c_address,4)
-        self.e=Daisy22(bus_id,i2c_address,5)
+        self.rs = Daisy22(bus_id, i2c_address, 4)
+        self.e = Daisy22(bus_id, i2c_address, 5)
         self.rs.off()
         self.e.off()
         time.sleep(0.015)
@@ -848,26 +850,26 @@ class Daisy14():
         #Command DISPLAY CLEAR
         self.sendcommand(0x01)
 
-        self.backled=Daisy22(bus_id,i2c_address,6)
+        self.backled = Daisy22(bus_id, i2c_address, 6)
         return
 
     def e_strobe(self):
         self.e.on()
         self.e.off()
 
-    def sendnibble(self,value):
-        currentvalue=self.i2c_bus.read_byte(self.i2c_address)
-        self.i2c_bus.write_byte(self.i2c_address,value&0x0F|currentvalue&0xF0)
+    def sendnibble(self, value):
+        currentvalue = self.i2c_bus.read_byte(self.i2c_address)
+        self.i2c_bus.write_byte(self.i2c_address, value&0x0F|currentvalue&0xF0)
         self.e_strobe()
         return
 
-    def sendcommand(self,value):
+    def sendcommand(self, value):
         self.rs.off()
         self.sendnibble((value>>4)&0x0F)
         self.sendnibble(value&0x0F)
         return
 
-    def senddata(self,value):
+    def senddata(self, value):
         self.rs.on()
         self.sendnibble((value>>4)&0x0F)
         self.sendnibble(value&0x0F)
@@ -889,34 +891,36 @@ class Daisy14():
         time.sleep(0.001)
         return
 
-    def setcurpos(self,x,y):
+    def setcurpos(self, x, y):
         if y<0 or y>3:
             return
         if x<0 or x>19:
             return
 
-        if y==0:
+        if y == 0:
             self.sendcommand(0x80+0x00+x)
-        if y==1:
+        elif y == 1:
             self.sendcommand(0x80+0x40+x)
-        if y==2:
+        elif y == 2:
             self.sendcommand(0x80+0x14+x)
-        if y==3:
+        elif y == 3:
             self.sendcommand(0x80+0x54+x)
         return
 
-    def putchar(self,value):
+    def putchar(self, value):
         self.senddata(value)
         return
 
-    def putstring(self,string):
-        if len(string)==0:
+    def putstring(self, string):
+        if len(string) == 0:
             return
-        if len(string)>20:
-            string=string[0:20]
+
+        if len(string) > 20:
+            string = string[0:20]
 
         for char in string:
             self.putchar(ord(char))
+
         return
 
     def backlighton(self):
@@ -936,7 +940,7 @@ class Daisy15():
 
     serial = None
 
-    def __init__(self,connector_id):
+    def __init__(self, connector_id):
         self.serial = serial.Serial(
             port=serial_ports[connector_id],
             baudrate=9600,
@@ -952,8 +956,8 @@ class Daisy15():
         self.serial.write("E")      # Clear screen
         rtc = self.serial.read(1)   # Wait for a reply
 
-    def send(self,col,row,str):
-        self.serial.write("s%c%c%c%c%c%s%c" % (int(row),int(col),2,0xFF,0xFF,str,0x00))
+    def send(self, col, row, str):
+        self.serial.write("s%c%c%c%c%c%s%c" % (int(row), int(col), 2, 0xFF, 0xFF, str, 0x00))
         rtc = self.serial.read(1)
 
 class Daisy18():
@@ -963,7 +967,7 @@ class Daisy18():
     http://www.acmesystems.it/DAISY-18
     """
 
-    kernel_id=-1
+    kernel_id = -1
 
     inputs_first = {
         'CH1' :  '2',
@@ -987,26 +991,26 @@ class Daisy18():
         'I4'  :  '9'
     }
 
-    def __init__(self,connector_id,position,inputs_id):
-        if (position=="first"):
-            pin=self.inputs_first[inputs_id]
+    def __init__(self, connector_id, position, inputs_id):
+        if position == "first":
+            pin = self.inputs_first[inputs_id]
         else:
-            pin=self.inputs_second[inputs_id]
+            pin = self.inputs_second[inputs_id]
 
-        self.kernel_id = get_kernel_id(connector_id,pin)
+        self.kernel_id = get_kernel_id(connector_id, pin)
 
-        if (self.kernel_id!=0):
+        if self.kernel_id != 0:
             export(self.kernel_id)
-            direction(self.kernel_id,'in')
+            direction(self.kernel_id, 'in')
 
     def state(self):
-        if self.kernel_id<>-1:
-            iopath='/sys/class/gpio/gpio' + str(self.kernel_id)
+        if self.kernel_id <> -1:
+            iopath = '/sys/class/gpio/gpio' + str(self.kernel_id)
             if os.path.exists(iopath):
                 with open(iopath + '/value', 'r') as f:
                     a = f.read()
 
-                if int(a)==0:
+                if int(a) == 0:
                     return False
                 else:
                     return True
@@ -1019,7 +1023,7 @@ class Daisy19():
     http://www.acmesystems.it/DAISY-19
     """
 
-    kernel_id=-1
+    kernel_id = -1
 
     outputs_first = {
         'CH1' :  '2',
@@ -1043,28 +1047,28 @@ class Daisy19():
         'O4'  :  '9',
     }
 
-    def __init__(self,connector_id,position,output_id):
-        if (position=="first"):
-            pin=self.outputs_first[output_id]
+    def __init__(self, connector_id, position, output_id):
+        if position == "first":
+            pin = self.outputs_first[output_id]
         else:
-            pin=self.outputs_second[output_id]
+            pin = self.outputs_second[output_id]
 
-        self.kernel_id = get_kernel_id(connector_id,pin)
+        self.kernel_id = get_kernel_id(connector_id, pin)
 
-        if (self.kernel_id!=0):
+        if self.kernel_id != 0:
             export(self.kernel_id)
-            direction(self.kernel_id,'low')
+            direction(self.kernel_id, 'low')
 
 
     def on(self):
-        if (self.kernel_id!=0):
-            set_value(self.kernel_id,1)
+        if self.kernel_id != 0:
+            set_value(self.kernel_id, 1)
         else:
             pass
 
     def off(self):
-        if (self.kernel_id!=0):
-            set_value(self.kernel_id,0)
+        if self.kernel_id != 0:
+            set_value(self.kernel_id, 0)
         else:
             pass
 
@@ -1081,41 +1085,41 @@ class Daisy22():
     http://www.acmesystems.it/DAISY-22
     """
 
-    i2c_bus=-1
-    i2c_address=-1
-    line=-1
+    i2c_bus = -1
+    i2c_address = -1
+    line = -1
 
-    def __init__(self,bus_id=0,address=0x20,line=0):
+    def __init__(self, bus_id=0, address=0x20, line=0):
         self.i2c_bus = smbus.SMBus(bus_id)
-        self.i2c_address=address
-        self.line=line
+        self.i2c_address = address
+        self.line = line
         return
 
-    def writebyte(self,value):
-        self.i2c_bus.write_byte(self.i2c_address,value)
+    def writebyte(self, value):
+        self.i2c_bus.write_byte(self.i2c_address, value)
         return
 
     def readbyte(self):
-        return  self.i2c_bus.read_byte(self.i2c_address)
+        return self.i2c_bus.read_byte(self.i2c_address)
 
     def on(self):
-        currentvalue=self.i2c_bus.read_byte(self.i2c_address)
-        self.i2c_bus.write_byte(self.i2c_address,currentvalue|1<<self.line)
+        currentvalue = self.i2c_bus.read_byte(self.i2c_address)
+        self.i2c_bus.write_byte(self.i2c_address, currentvalue|1<<self.line)
         return
 
     def off(self):
-        currentvalue=self.i2c_bus.read_byte(self.i2c_address)
-        self.i2c_bus.write_byte(self.i2c_address,currentvalue&(255-(1<<self.line)))
+        currentvalue = self.i2c_bus.read_byte(self.i2c_address)
+        self.i2c_bus.write_byte(self.i2c_address, currentvalue&(255-(1<<self.line)))
         return
 
     def get(self):
-        currentvalue=self.i2c_bus.read_byte(self.i2c_address)
-        self.i2c_bus.write_byte(self.i2c_address,currentvalue|(1<<self.line))
+        currentvalue = self.i2c_bus.read_byte(self.i2c_address)
+        self.i2c_bus.write_byte(self.i2c_address, currentvalue|(1<<self.line))
         linevalue=self.i2c_bus.read_byte(self.i2c_address) & (1<<self.line)
         return linevalue >> self.line
 
     def pressed(self):
-        if self.get()==0:
+        if self.get() == 0:
             return True
         else:
             return False
@@ -1127,7 +1131,7 @@ class Daisy24():
     http://www.acmesystems.it/DAISY-24
     """
 
-    i2c_bus=-1
+    i2c_bus = -1
     lcd_address = 0x3E
     exp_address = -1
     backled = -1
@@ -1136,7 +1140,7 @@ class Daisy24():
     K2 = -1
     K3 = -1
 
-    def __init__(self,bus_id=0,exp_address=0x27):
+    def __init__(self, bus_id=0, exp_address=0x27):
         self.exp_address = exp_address
         self.i2c_bus = smbus.SMBus(bus_id)
         self.sendcommand(0x38)
@@ -1147,19 +1151,19 @@ class Daisy24():
         self.sendcommand(0x6F) #Follower control
         self.sendcommand(0x0C) #Display ON
         self.clear()
-        self.K0=Daisy22(bus_id,exp_address,0)
-        self.K1=Daisy22(bus_id,exp_address,1)
-        self.K2=Daisy22(bus_id,exp_address,2)
-        self.K3=Daisy22(bus_id,exp_address,3)
-        self.backled=Daisy22(bus_id,exp_address,4)
+        self.K0 = Daisy22(bus_id, exp_address, 0)
+        self.K1 = Daisy22(bus_id, exp_address, 1)
+        self.K2 = Daisy22(bus_id, exp_address, 2)
+        self.K3 = Daisy22(bus_id, exp_address, 3)
+        self.backled = Daisy22(bus_id, exp_address, 4)
         return
 
-    def sendcommand(self,value):
-        self.i2c_bus.write_byte_data(self.lcd_address,0x00,value)
+    def sendcommand(self, value):
+        self.i2c_bus.write_byte_data(self.lcd_address, 0x00, value)
         return
 
-    def senddata(self,value):
-        self.i2c_bus.write_byte_data(self.lcd_address,0x40,value)
+    def senddata(self, value):
+        self.i2c_bus.write_byte_data(self.lcd_address, 0x40, value)
         return
 
     def clear(self):
@@ -1178,7 +1182,7 @@ class Daisy24():
         time.sleep(0.001)
         return
 
-    def setcontrast(self,value):
+    def setcontrast(self, value):
         """
         Set the display contrast
         value = 0 to 15
@@ -1194,26 +1198,26 @@ class Daisy24():
         self.sendcommand(0x30 + 0x08 + 0x01)
         return
 
-    def setcurpos(self,x,y):
+    def setcurpos(self, x, y):
         if y<0 or y>1:
             return
         if x<0 or x>15:
             return
 
-        if y==0:
+        if y == 0:
             self.sendcommand(0x80+0x00+x)
         else:
             self.sendcommand(0x80+0x40+x)
         return
 
-    def putchar(self,value):
+    def putchar(self, value):
         self.senddata(value)
         return
 
-    def putstring(self,string):
-        if len(string)==0:
+    def putstring(self, string):
+        if len(string) == 0:
             return
-        if len(string)>16:
+        if len(string) > 16:
             string=string[0:16]
 
         for char in string:
@@ -1228,14 +1232,14 @@ class Daisy24():
         self.backled.off()
         return
 
-    def pressed(self,keyid):
-        if keyid==0:
+    def pressed(self, keyid):
+        if keyid == 0:
             return self.K0.pressed()
-        if keyid==1:
+        if keyid == 1:
             return self.K1.pressed()
-        if keyid==2:
+        if keyid == 2:
             return self.K2.pressed()
-        if keyid==3:
+        if keyid == 3:
             return self.K3.pressed()
 
         return False
@@ -1245,7 +1249,6 @@ class Daisy24():
 w1path = "/sys/bus/w1/devices/w1 bus master"
 
 def w1buslist():
-
         if not os.path.exists(w1path):
             print "1-wire bus not found"
             print "Check if the 1-wire bus is installed"
@@ -1259,15 +1262,14 @@ def w1buslist():
         return [deviceId[3:] for deviceId in deviceList if deviceId[0:2]=="28"]
 
 class DS18B20():
+    sensor_path = ""
 
-    sensor_path=""
-
-    def __init__(self,w1Id):
+    def __init__(self, w1Id):
         if not os.path.exists(w1path):
             print "1-wire bus not found"
             return
 
-        self.sensor_path = os.path.join(w1path,"28-" + w1Id)
+        self.sensor_path = os.path.join(w1path, "28-" + w1Id)
 
         if not os.path.exists(self.sensor_path):
             print "Sensor %s not found" % (w1Id)
@@ -1276,26 +1278,26 @@ class DS18B20():
 #       print self.sensor_path
 
     def getTemp(self):
+        tString = ""
         with open(self.sensor_path + '/w1_slave', 'r') as f:
             tString = f.read()
 
-        if tString.find("NO")>=0:
+        if tString.find("NO") >= 0:
             print "Wrong CRC"
             return
 
-        p=tString.find("t=")
-        return float(tString[p+2:-1])/1000
+        p = tString.find("t=")
+        return float(tString[p+2:-1]) / 1000
 
 class DS28EA00():
-
     sensor_path=""
 
-    def __init__(self,w1Id):
+    def __init__(self, w1Id):
         if not os.path.exists(w1path):
             print "1-wire bus not found"
             return
 
-        self.sensor_path = os.path.join(w1path,"42-" + w1Id)
+        self.sensor_path = os.path.join(w1path, "42-" + w1Id)
 
         if not os.path.exists(self.sensor_path):
             print "Sensor %s not found" % (w1Id)
@@ -1307,10 +1309,10 @@ class DS28EA00():
         with open(self.sensor_path + '/therm', 'r') as f:
             tString = f.read()
 
-        if tString.find("NO")>=0:
+        if tString.find("NO") >= 0:
             print "Wrong CRC"
             return
 
-        p=tString.find("t=")
+        p = tString.find("t=")
         return float(tString[p+2:-1])
 
