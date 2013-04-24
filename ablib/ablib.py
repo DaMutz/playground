@@ -691,19 +691,19 @@ class Daisy8():
         'IN1' :  '9',
     }
 
-    def __init__(self, connector_id, position, id):
+    def __init__(self, connector_id, position, id_):
         if position == "first":
-            pin=self.line_first[id]
+            pin = self.line_first[id_]
         else:
-            pin=self.line_second[id]
+            pin = self.line_second[id_]
 
         self.kernel_id = get_kernel_id(connector_id, pin)
 
-        if (self.kernel_id != 0 and id[0:2] == "RL"):
+        if (self.kernel_id != 0 and id_[0:2] == "RL"):
             export(self.kernel_id)
             direction(self.kernel_id, 'low')
 
-        if (self.kernel_id != 0 and id[0:2] == "IN"):
+        if (self.kernel_id != 0 and id_[0:2] == "IN"):
             export(self.kernel_id)
             direction(self.kernel_id, 'in')
 
@@ -956,8 +956,8 @@ class Daisy15():
         self.serial.write("E")      # Clear screen
         rtc = self.serial.read(1)   # Wait for a reply
 
-    def send(self, col, row, str):
-        self.serial.write("s%c%c%c%c%c%s%c" % (int(row), int(col), 2, 0xFF, 0xFF, str, 0x00))
+    def send(self, col, row, text):
+        self.serial.write("s%c%c%c%c%c%s%c" % (int(row), int(col), 2, 0xFF, 0xFF, text, 0x00))
         rtc = self.serial.read(1)
 
 class Daisy18():
