@@ -419,67 +419,58 @@ def get_kernel_id(connector_name,pin_number):
 def export(kernel_id):
     iopath='/sys/class/gpio/gpio' + str(kernel_id)
     if not os.path.exists(iopath):
-        f = open('/sys/class/gpio/export','w')
-        f.write(str(kernel_id))
-        f.close()
+        with open('/sys/class/gpio/export', 'w') as f:
+            f.write(str(kernel_id))
 
 def unexport(kernel_id):
     iopath='/sys/class/gpio/gpio' + str(kernel_id)
     if os.path.exists(iopath):
-        f = open('/sys/class/gpio/unexport','w')
-        f.write(str(kernel_id))
-        f.close()
+        with open('/sys/class/gpio/unexport', 'w') as f:
+            f.write(str(kernel_id))
 
 def direction(kernel_id,direct):
     iopath='/sys/class/gpio/gpio' + str(kernel_id)
     if os.path.exists(iopath):
-        f = open(iopath + '/direction','w')
-        f.write(direct)
-        f.close()
+        with open(iopath + '/direction', 'w') as f:
+            f.write(direct)
 
 def set_value(kernel_id,value):
     iopath='/sys/class/gpio/gpio' + str(kernel_id)
     if os.path.exists(iopath):
-        f = open(iopath + '/value','w')
-        f.write(str(value))
-        f.close()
+        with open(iopath + '/value', 'w') as f:
+            f.write(str(value))
 
 def get_value(kernel_id):
     if kernel_id<>-1:
         iopath='/sys/class/gpio/gpio' + str(kernel_id)
         if os.path.exists(iopath):
-            f = open(iopath + '/value','r')
-            a=f.read()
-            f.close()
+            with open(iopath + '/value', 'r') as f:
+                a = f.read()
             return int(a)
 
 def soft_pwm_export(kernel_id):
     iopath='/sys/class/soft_pwm/pwm' + str(kernel_id)
     if not os.path.exists(iopath):
-        f = open('/sys/class/soft_pwm/export','w')
-        f.write(str(kernel_id))
-        f.close()
+        with open('/sys/class/soft_pwm/export', 'w') as f:
+            f.write(str(kernel_id))
 
 def soft_pwm_period(kernel_id,value):
     iopath='/sys/class/soft_pwm/pwm' + str(kernel_id)
     if os.path.exists(iopath):
-        f = open(iopath + '/period','w')
-        f.write(str(value))
-        f.close()
+        with open(iopath + '/period', 'w') as f:
+            f.write(str(value))
 
 def soft_pwm_pulse(kernel_id,value):
     iopath='/sys/class/soft_pwm/pwm' + str(kernel_id)
     if os.path.exists(iopath):
-        f = open(iopath + '/pulse','w')
-        f.write(str(value))
-        f.close()
+        with open(iopath + '/pulse', 'w') as f:
+            f.write(str(value))
 
 def soft_pwm_steps(kernel_id,value):
     iopath='/sys/class/soft_pwm/pwm' + str(kernel_id)
     if os.path.exists(iopath):
-        f = open(iopath + '/pulses','w')
-        f.write(str(value))
-        f.close()
+        with open(iopath + '/pulses', 'w') as f:
+            f.write(str(value))
 
 class Pin():
     """
@@ -658,9 +649,9 @@ class Daisy5():
         if self.kernel_id<>-1:
             iopath='/sys/class/gpio/gpio' + str(self.kernel_id)
             if os.path.exists(iopath):
-                f = open(iopath + '/value','r')
-                a=f.read()
-                f.close()
+                with open(iopath + '/value', 'r') as f:
+                    a = f.read()
+
                 if int(a)==0:
                     return False
                 else:
@@ -1012,9 +1003,9 @@ class Daisy18():
         if self.kernel_id<>-1:
             iopath='/sys/class/gpio/gpio' + str(self.kernel_id)
             if os.path.exists(iopath):
-                f = open(iopath + '/value','r')
-                a=f.read()
-                f.close()
+                with open(iopath + '/value', 'r') as f:
+                    a = f.read()
+
                 if int(a)==0:
                     return False
                 else:
@@ -1285,10 +1276,8 @@ class DS18B20():
 #       print self.sensor_path
 
     def getTemp(self):
-
-        f = open(self.sensor_path + '/w1_slave','r')
-        tString=f.read()
-        f.close()
+        with open(self.sensor_path + '/w1_slave', 'r') as f:
+            tString = f.read()
 
         if tString.find("NO")>=0:
             print "Wrong CRC"
@@ -1315,10 +1304,8 @@ class DS28EA00():
 #       print self.sensor_path
 
     def getTemp(self):
-
-        f = open(self.sensor_path + '/therm','r')
-        tString=f.read()
-        f.close()
+        with open(self.sensor_path + '/therm', 'r') as f:
+            tString = f.read()
 
         if tString.find("NO")>=0:
             print "Wrong CRC"
