@@ -443,7 +443,7 @@ def set_value(kernel_id, value):
 			f.write(str(value))
 
 def get_value(kernel_id):
-	if kernel_id<>-1:
+	if kernel_id <> -1:
 		iopath = os.path.join(GPIO_PATH, 'gpio' + str(kernel_id))
 		if os.path.exists(iopath):
 			with open(iopath + '/value', 'r') as f:
@@ -525,13 +525,12 @@ class Daisy2():
 	}
 
 	def __init__(self, connector_id, S1="A", period=1400, pulse=700):
-		if (S1 == "A"):
+		if S1 == "A":
 			self.ENABLE_kernel_id = get_kernel_id(connector_id, self.control_line_A["ENABLE"])
 			self.DIR_kernel_id = get_kernel_id(connector_id, self.control_line_A["DIR"])
 			self.STEP_kernel_id = get_kernel_id(connector_id, self.control_line_A["STEP"])
 			self.LOWPOWER_kernel_id = get_kernel_id(connector_id, self.control_line_A["LOWPOWER"])
-
-		if (S1 == "B"):
+		elif S1 == "B":
 			self.ENABLE_kernel_id = get_kernel_id(connector_id, self.control_line_B["ENABLE"])
 			self.DIR_kernel_id = get_kernel_id(connector_id, self.control_line_B["DIR"])
 			self.STEP_kernel_id = get_kernel_id(connector_id, self.control_line_B["STEP"])
@@ -699,25 +698,21 @@ class Daisy8():
 
 		self.kernel_id = get_kernel_id(connector_id, pin)
 
-		if (self.kernel_id != 0 and id_[0:2] == "RL"):
+		if self.kernel_id != 0 and id_[0:2] == "RL":
 			export(self.kernel_id)
 			direction(self.kernel_id, 'low')
 
-		if (self.kernel_id != 0 and id_[0:2] == "IN"):
+		if self.kernel_id != 0 and id_[0:2] == "IN":
 			export(self.kernel_id)
 			direction(self.kernel_id, 'in')
 
 	def on(self):
-		if (self.kernel_id != 0):
+		if self.kernel_id != 0:
 			set_value(self.kernel_id, 1)
-		else:
-			pass
 
 	def off(self):
-		if (self.kernel_id != 0):
+		if self.kernel_id != 0:
 			set_value(self.kernel_id, 0)
-		else:
-			pass
 
 	def get(self):
 		if get_value(self.kernel_id):
@@ -786,14 +781,10 @@ class Daisy11():
 	def on(self):
 		if self.kernel_id != 0:
 			set_value(self.kernel_id, 1)
-		else:
-			pass
 
 	def off(self):
 		if self.kernel_id != 0:
 			set_value(self.kernel_id, 0)
-		else:
-			pass
 
 	def get(self):
 		if get_value(self.kernel_id):
@@ -892,19 +883,15 @@ class Daisy14():
 		return
 
 	def setcurpos(self, x, y):
-		if y<0 or y>3:
-			return
-		if x<0 or x>19:
-			return
-
-		if y == 0:
-			self.sendcommand(0x80+0x00+x)
-		elif y == 1:
-			self.sendcommand(0x80+0x40+x)
-		elif y == 2:
-			self.sendcommand(0x80+0x14+x)
-		elif y == 3:
-			self.sendcommand(0x80+0x54+x)
+		if 0 <= x < 20:
+			if y == 0:
+				self.sendcommand(0x80+0x00+x)
+			elif y == 1:
+				self.sendcommand(0x80+0x40+x)
+			elif y == 2:
+				self.sendcommand(0x80+0x14+x)
+			elif y == 3:
+				self.sendcommand(0x80+0x54+x)
 		return
 
 	def putchar(self, value):
@@ -912,9 +899,6 @@ class Daisy14():
 		return
 
 	def putstring(self, string):
-		if len(string) == 0:
-			return
-
 		if len(string) > 20:
 			string = string[0:20]
 
@@ -1199,15 +1183,11 @@ class Daisy24():
 		return
 
 	def setcurpos(self, x, y):
-		if y<0 or y>1:
-			return
-		if x<0 or x>15:
-			return
-
-		if y == 0:
-			self.sendcommand(0x80+0x00+x)
-		else:
-			self.sendcommand(0x80+0x40+x)
+		if 0 <= x < 16:
+			if y == 0:
+				self.sendcommand(0x80+0x00+x)
+			elif y == 1:
+				self.sendcommand(0x80+0x40+x)
 		return
 
 	def putchar(self, value):
@@ -1215,8 +1195,6 @@ class Daisy24():
 		return
 
 	def putstring(self, string):
-		if len(string) == 0:
-			return
 		if len(string) > 16:
 			string=string[0:16]
 
@@ -1235,11 +1213,11 @@ class Daisy24():
 	def pressed(self, keyid):
 		if keyid == 0:
 			return self.K0.pressed()
-		if keyid == 1:
+		elif keyid == 1:
 			return self.K1.pressed()
-		if keyid == 2:
+		elif keyid == 2:
 			return self.K2.pressed()
-		if keyid == 3:
+		elif keyid == 3:
 			return self.K3.pressed()
 
 		return False
