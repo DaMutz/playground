@@ -690,13 +690,13 @@ class Daisy8():
 		'IN1' :  '9',
 	}
 
-	def __init__(self, connector_id, position, id_):
+	def __init__(self, connector="D11", position="first", id_="RL0"):
 		if position == "first":
 			pin = self.line_first[id_]
 		else:
 			pin = self.line_second[id_]
 
-		self.kernel_id = get_kernel_id(connector_id, pin)
+		self.kernel_id = get_kernel_id(connector, pin)
 
 		if self.kernel_id != 0 and id_[0:2] == "RL":
 			export(self.kernel_id)
